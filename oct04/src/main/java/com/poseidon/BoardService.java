@@ -26,7 +26,6 @@ public class BoardService {
 	}
 
 	public int write(Map<String, Object> map) {
-		map.put("m_id", "peazh");
 		map.put("bip", util.getIP());
 		return boardDAO.write(map);
 	}
@@ -53,7 +52,6 @@ public class BoardService {
 	}
 
 	public int commentWrite(Map<String, Object> map) {
-		map.put("m_id", "poseidon");
 		map.put("cip", util.getIP());
 		return boardDAO.commentWrite(map);
 	}
@@ -69,6 +67,10 @@ public class BoardService {
 	public int commentUpdate(Map<String, Object> map) {
 		map.put("cip", util.getIP());
 		return boardDAO.commentUpdate(map);
+	}
+
+	public List<Map<String, Object>> index_cmtTop5() {
+		return boardDAO.index_cmtTop5();
 	}
 
 }

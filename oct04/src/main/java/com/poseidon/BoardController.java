@@ -3,6 +3,9 @@ package com.poseidon;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,10 +90,15 @@ public class BoardController {
 	}
 
 	@PostMapping("/login")
-	public String login(@RequestBody Map<String, Object> map) {
+	public String login(@RequestBody Map<String, Object> map, HttpServletRequest request) {
 		//System.out.println(map);
 		//{userId=admin, userPassword=admin}
 		Map<String, Object> login = boardService.login(map);
+		if(login.get("count").equals("1")) {
+			HttpSession session = request.getSession();
+			session.setAttribute("m_name", login.get("m_name"));
+			session.setAttribute("m_id", map.get("userId"));
+		}
 		JSONObject json = new JSONObject(login);
 		// System.out.println(json.toString());
 		//일치하지 않을 때 : {"count":0}
@@ -101,14 +109,23 @@ public class BoardController {
 	@GetMapping("/index")
 	public String index() {
 		JSONObject json = new JSONObject();
-
+		
+		// 최신글 5개 뜨기
 		List<Map<String, Object>> list = boardService.boardList(1);
 		JSONArray jsonList = new JSONArray(list);
 		json.put("list", jsonList);
 
+		// 새로 가입한 사람 뜨기
 		List<Map<String, Object>> index_members = boardService.index_members();
 		JSONArray members = new JSONArray(index_members);
 		json.put("members", members);
+		
+		// 댓글 많은 순 5개 뜨기
+		List<Map<String, Object>> index_cmtTop5 = boardService.index_cmtTop5();
+		JSONArray cmtTop5 = new JSONArray(index_cmtTop5);
+		json.put("cmtTop5", cmtTop5);
+		
+		
 		return json.toString();
 	}
 
@@ -117,7 +134,7 @@ public class BoardController {
 		int result = boardService.commentWrite(map);
 		JSONObject json = new JSONObject();
 		json.put("result", result);
-		// //System.out.println(map);
+		//System.out.println(map);
 		return json.toString();
 	}
 
